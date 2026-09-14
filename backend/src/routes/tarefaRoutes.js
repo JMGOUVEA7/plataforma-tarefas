@@ -1,3 +1,12 @@
+const express = require("express");
+const prisma = require("../lib/prisma");
+const autenticar = require("../middlewares/authMiddleware");
+
+const router = express.Router();
+
+router.use(autenticar);
+
+// Rota de autenticação
 router.get("/", autenticar, (req, res) => {
   res.json({
     message: "Você está autenticado",
@@ -131,3 +140,6 @@ router.delete("/:id", async (req, res) => {
     });
   }
 });
+
+
+module.exports = router;
