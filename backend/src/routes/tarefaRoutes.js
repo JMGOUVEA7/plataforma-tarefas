@@ -6,12 +6,26 @@ const router = express.Router();
 
 router.use(autenticar);
 
-// Rota de autenticação
-router.get("/", autenticar, (req, res) => {
-  res.json({
-    message: "Você está autenticado",
-    usuarioId: req.usuario.id
-  });
+
+router.get("/", autenticar, async (req, res) => {
+  try {
+    const tarefas = await prisma.tarefa.findMany({
+      where: {
+        usuarioId: req.usuarioId
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+
+    res.json(tarefas);
+  } catch (error) {
+    console.error("Erro ao listar tarefas:", error);
+
+    res.status(500).json({
+      erro: "Erro ao buscar tarefas"
+    });
+  }
 });
 
 
@@ -44,28 +58,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-
-/* Listar Tarefas */
-
-router.get("/", async (req, res) => {
-  try {
-    const tarefas = await prisma.tarefa.findMany({
-      where: {
-        usuarioId: req.usuario.id
-      },
-      orderBy: {
-        createdAt: "desc"
-      }
-    });
-
-    res.json(tarefas);
-
-  } catch (error) {
-    res.status(500).json({
-      message: "Erro ao listar tarefas"
-    });
-  }
-});
 
 
 /* Atualizar tarefa */
