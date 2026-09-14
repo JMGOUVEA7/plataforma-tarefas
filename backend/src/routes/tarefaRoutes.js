@@ -7,7 +7,9 @@ const router = express.Router();
 router.use(autenticar);
 
 
-router.get("/", autenticar, async (req, res) => {
+// Listar tarefas
+
+router.get("/", async (req, res) => {
   try {
     const tarefas = await prisma.tarefa.findMany({
       where: {
@@ -19,6 +21,7 @@ router.get("/", autenticar, async (req, res) => {
     });
 
     res.json(tarefas);
+
   } catch (error) {
     console.error("Erro ao listar tarefas:", error);
 
@@ -29,7 +32,44 @@ router.get("/", autenticar, async (req, res) => {
 });
 
 
-/* Criar tarefa */
+// Busacar tarefa por id
+
+router.get("/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({
+        message: "ID da tarefa inválido"
+      });
+    }
+
+    const tarefa = await prisma.tarefa.findFirst({
+      where: {
+        id,
+        usuarioId: req.usuarioId
+      }
+    });
+
+    if (!tarefa) {
+      return res.status(404).json({
+        message: "Tarefa não encontrada"
+      });
+    }
+
+    res.json(tarefa);
+
+  } catch (error) {
+    console.error("Erro ao buscar tarefa:", error);
+
+    res.status(500).json({
+      message: "Erro ao buscar tarefa"
+    });
+  }
+});
+
+
+// Criar tarefa
 
 router.post("/", async (req, res) => {
   try {
@@ -45,13 +85,15 @@ router.post("/", async (req, res) => {
       data: {
         titulo,
         descricao,
-        usuarioId: req.usuario.id
+        usuarioId: req.usuarioId
       }
     });
 
     res.status(201).json(tarefa);
 
   } catch (error) {
+    console.error("Erro ao criar tarefa:", error);
+
     res.status(500).json({
       message: "Erro ao criar tarefa"
     });
@@ -59,8 +101,7 @@ router.post("/", async (req, res) => {
 });
 
 
-
-/* Atualizar tarefa */
+// Atualizar tarefa
 
 router.put("/:id", async (req, res) => {
   try {
@@ -70,7 +111,7 @@ router.put("/:id", async (req, res) => {
     const tarefa = await prisma.tarefa.findFirst({
       where: {
         id,
-        usuarioId: req.usuario.id
+        usuarioId: req.usuarioId
       }
     });
 
@@ -81,7 +122,9 @@ router.put("/:id", async (req, res) => {
     }
 
     const tarefaAtualizada = await prisma.tarefa.update({
-      where: { id },
+      where: {
+        id: tarefa.id
+      },
       data: {
         titulo,
         descricao,
@@ -92,6 +135,8 @@ router.put("/:id", async (req, res) => {
     res.json(tarefaAtualizada);
 
   } catch (error) {
+    console.error("Erro ao atualizar tarefa:", error);
+
     res.status(500).json({
       message: "Erro ao atualizar tarefa"
     });
@@ -99,7 +144,7 @@ router.put("/:id", async (req, res) => {
 });
 
 
-/* Excluir tarefa */
+// Excluir tarefa
 
 router.delete("/:id", async (req, res) => {
   try {
@@ -108,7 +153,7 @@ router.delete("/:id", async (req, res) => {
     const tarefa = await prisma.tarefa.findFirst({
       where: {
         id,
-        usuarioId: req.usuario.id
+        usuarioId: req.usuarioId
       }
     });
 
@@ -119,7 +164,9 @@ router.delete("/:id", async (req, res) => {
     }
 
     await prisma.tarefa.delete({
-      where: { id }
+      where: {
+        id: tarefa.id
+      }
     });
 
     res.json({
@@ -127,6 +174,8 @@ router.delete("/:id", async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Erro ao excluir tarefa:", error);
+
     res.status(500).json({
       message: "Erro ao excluir tarefa"
     });

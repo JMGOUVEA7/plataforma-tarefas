@@ -1,29 +1,36 @@
 const jwt = require("jsonwebtoken");
 
 function autenticar(req, res, next) {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({
-      message: "Token não informado"
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
-
   try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).json({
+        erro: "Token não informado"
+      });
+    }
+
+    const partes = authHeader.split(" ");
+
+    if (partes.length !== 2 || partes[0] !== "Bearer") {
+      return res.status(401).json({
+        erro: "Token inválido"
+      });
+    }
+
+    const token = partes[1];
+
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET
     );
 
-    req.usuario = decoded;
+    req.usuarioId = decoded.usuarioId;
 
     next();
-
   } catch (error) {
     return res.status(401).json({
-      message: "Token inválido ou expirado"
+      erro: "Token inválido ou expirado"
     });
   }
 }
