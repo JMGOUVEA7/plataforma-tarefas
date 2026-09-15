@@ -1196,3 +1196,5 @@ A Plataforma de Tarefas demonstra a integração entre frontend, backend e banco
 O React é responsável pela interface e pela interação com o usuário, enquanto o Node.js e o Express disponibilizam a API responsável pelas regras de negócio. O Prisma realiza a comunicação com o PostgreSQL, e o JWT garante que somente usuários autenticados possam acessar e manipular suas tarefas.
 
 A aplicação também implementa medidas de segurança, como hash de senhas, proteção de rotas privadas, validação de dados, controle de acesso por usuário e tratamento de erros.
+
+Foi utilizado ChatGPT no desenvolvimento da Plataforma de Tarefas, fazendo o planejamento da plataforma e contribuindo para a criação e organização do backend e do frontend. Auxílio na configuração do Node.js, Express, Prisma e PostgreSQL, na implementação das rotas de cadastro, login e gerenciamento de tarefas, além da integração com o React. Também nos testes da aplicação, da correção de erros e da implementação da autenticação com JWT e do controle de acesso às tarefas de cada usuário.
