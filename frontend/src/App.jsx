@@ -137,6 +137,8 @@ function App() {
   }, [tela]);
 
 
+  // Criar tarefa
+
   async function criarTarefa(e) {
     e.preventDefault();
 
@@ -169,6 +171,85 @@ function App() {
 
       setTitulo("");
       setDescricao("");
+
+      carregarTarefas();
+
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao conectar com o servidor.");
+    }
+  }
+
+
+  // Concluir tarefa
+
+  async function concluirTarefa(id) {
+    const token = localStorage.getItem("token");
+
+    try {
+      const resposta = await fetch(
+        `http://localhost:3000/api/tarefas/${id}`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+
+          body: JSON.stringify({
+            status: "CONCLUIDA"
+          })
+        }
+      );
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        alert(dados.message || "Erro ao atualizar tarefa");
+        return;
+      }
+
+      carregarTarefas();
+
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao conectar com o servidor.");
+    }
+  }
+
+
+  // Excluir tarefa
+
+  async function excluirTarefa(id) {
+    const token = localStorage.getItem("token");
+
+    const confirmar = window.confirm(
+      "Deseja realmente excluir esta tarefa?"
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    try {
+      const resposta = await fetch(
+        `http://localhost:3000/api/tarefas/${id}`,
+        {
+          method: "DELETE",
+
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        alert(dados.message || "Erro ao excluir tarefa");
+        return;
+      }
 
       carregarTarefas();
 
@@ -251,6 +332,7 @@ function App() {
   if (tela === "tarefas") {
     return (
       <div>
+
         <h1>Minhas tarefas</h1>
 
         <button onClick={carregarTarefas}>
@@ -267,7 +349,7 @@ function App() {
           Sair
         </button>
 
-          <hr />
+        <hr />
 
         <h2>Nova tarefa</h2>
 
@@ -306,6 +388,11 @@ function App() {
 
         <hr />
 
+
+        {/* formulário para criar tarefa */}
+
+        <h2>Minhas tarefas</h2>
+
         {tarefas.length === 0 ? (
           <p>Você ainda não possui tarefas.</p>
         ) : (
@@ -322,14 +409,32 @@ function App() {
                 Status: {tarefa.status}
               </p>
 
+              {/* Botões de concluido e excluir*/}
+
+              {tarefa.status === "PENDENTE" && (
+                <button
+                  onClick={() => concluirTarefa(tarefa.id)}
+                >
+                  Concluir
+                </button>
+              )}
+
+              <button
+                onClick={() => excluirTarefa(tarefa.id)}
+              >
+                Excluir
+              </button>
+
               <hr />
 
             </div>
           ))
         )}
+
       </div>
     );
   }
+
 
   // Tela de Login
 
