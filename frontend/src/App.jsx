@@ -7,6 +7,8 @@ function App() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [tarefas, setTarefas] = useState([]);
+  const [titulo, setTitulo] = useState("");
+  const [descricao, setDescricao] = useState("");
 
 
   // Fazer Login
@@ -135,6 +137,47 @@ function App() {
   }, [tela]);
 
 
+  async function criarTarefa(e) {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const resposta = await fetch(
+        "http://localhost:3000/api/tarefas",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+
+          body: JSON.stringify({
+            titulo,
+            descricao
+          })
+        }
+      );
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        alert(dados.message || "Erro ao criar tarefa");
+        return;
+      }
+
+      setTitulo("");
+      setDescricao("");
+
+      carregarTarefas();
+
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao conectar com o servidor.");
+    }
+  }
+
 
   // Tela de cadastro
 
@@ -223,6 +266,43 @@ function App() {
         >
           Sair
         </button>
+
+          <hr />
+
+        <h2>Nova tarefa</h2>
+
+        <form onSubmit={criarTarefa}>
+
+          <div>
+            <label>Título:</label>
+            <br />
+
+            <input
+              type="text"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+            />
+          </div>
+
+          <br />
+
+          <div>
+            <label>Descrição:</label>
+            <br />
+
+            <textarea
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+            />
+          </div>
+
+          <br />
+
+          <button type="submit">
+            Adicionar tarefa
+          </button>
+
+        </form>
 
         <hr />
 
